@@ -103,9 +103,10 @@ public class CustomArrayList<E> implements CustomList<E> {
      */
     @Override
     public void clear() {
-        for (Object element : array) {
-            element = null;
+        for (int i = 0; i < size; i++) {
+            array[i] = null;
         }
+
         size = 0;
     }
 
@@ -135,13 +136,15 @@ public class CustomArrayList<E> implements CustomList<E> {
 
     /**
      * Метод сортирует объекты в натуральном порядке. Список должен содержать объекты реализующие интерфейс Comparable.
+     * @param list список элементов, который нужно отсортировать
+     * @param <E> тип элемента в списке.
      */
     public static <E extends Comparable<E>> void sort(CustomList<E> list) {
         quickSort(list, 0, list.size() - 1);
     }
 
     private static <E extends Comparable<E>> void quickSort(CustomList<E> list, int left, int right) {
-        if (right - left <= 0) {
+        if (right <= left) {
             return;
         }
 
@@ -181,7 +184,7 @@ public class CustomArrayList<E> implements CustomList<E> {
     }
 
     private static <E> void quickSort(CustomList<E> list, Comparator<E> comparator, int left, int right) {
-        if (right - left <= 0) {
+        if (right <= left) {
             return;
         }
 
