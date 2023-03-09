@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CustomArrayListTest {
 
-    private CustomArrayList<Integer> list;
+    private CustomList<Integer> list;
 
     @BeforeEach
     public void setUp() {
@@ -46,6 +46,20 @@ class CustomArrayListTest {
         list.add("Anna");
 
         CustomArrayList.sort(list);
+
+        assertEquals("Anna", list.get(0));
+        assertEquals("Eldar", list.get(1));
+        assertEquals("Pavel", list.get(2));
+    }
+
+    @Test
+    public void testSortByComparator() {
+        CustomArrayList<String> list = new CustomArrayList<>();
+        list.add("Pavel");
+        list.add("Eldar");
+        list.add("Anna");
+
+        CustomArrayList.sort(list, String::compareTo);
 
         assertEquals("Anna", list.get(0));
         assertEquals("Eldar", list.get(1));

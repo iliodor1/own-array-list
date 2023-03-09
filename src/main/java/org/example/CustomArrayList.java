@@ -10,7 +10,7 @@ import java.util.Objects;
  * @param <E> тип элемента, который будет храниться в списке.
  * @author Eldar Gainanov
  */
-public class CustomArrayList<E> {
+public class CustomArrayList<E> implements CustomList<E> {
     // емкость по умолчанию
     private static final int DEFAULT_CAPACITY = 10;
     // количество элементов в списке
@@ -30,6 +30,7 @@ public class CustomArrayList<E> {
      *
      * @param element элемент, который нужно добавить в список.
      */
+    @Override
     public void add(E element) {
         if (array.length == size) {
             increaseArray();
@@ -44,6 +45,7 @@ public class CustomArrayList<E> {
      * @param index   индекс, по которому нужно добавить элемент.
      * @param element элемент, который нужно добавить в список.
      */
+    @Override
     public void add(int index, E element) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
@@ -71,7 +73,7 @@ public class CustomArrayList<E> {
      * @param index индекс возвращаемого объекта.
      * @return возвращает элемент по заданному индексу.
      */
-
+    @Override
     public E get(int index) {
         if (index < 0 || size <= index) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
@@ -84,7 +86,7 @@ public class CustomArrayList<E> {
      *
      * @param index индекс удаляемого объекта из списка.
      */
-
+    @Override
     public void delete(int index) {
         if (index < 0 || size <= index) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
@@ -99,6 +101,7 @@ public class CustomArrayList<E> {
     /**
      * Удаляет все элементы массива
      */
+    @Override
     public void clear() {
         for (Object element : array) {
             element = null;
@@ -111,7 +114,7 @@ public class CustomArrayList<E> {
      *
      * @return возвращает размер массива.
      */
-
+    @Override
     public int size() {
         return size;
     }
@@ -122,40 +125,47 @@ public class CustomArrayList<E> {
      * @param index   индекс новой позиции элемента в списке
      * @param element элемент, который нужно переместить на новую позицию в списке
      */
-    private void set(int index, E element) {
-        Objects.checkIndex(index, size);
+    @Override
+    public void set(int index, E element) {
+        if (index < 0 || size <= index) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
         array[index] = element;
     }
 
     /**
      * Метод сортирует объекты в натуральном порядке. Список должен содержать объекты реализующие интерфейс Comparable.
      */
-    public static <E extends Comparable<E>> void sort(CustomArrayList<E> list) {
+    public static <E extends Comparable<E>> void sort(CustomList<E> list) {
         quickSort(list, 0, list.size() - 1);
     }
 
-    private static <E extends Comparable<E>> void quickSort(CustomArrayList<E> list, int left, int right) {
-        if (left < right) {
-            int pivotIndex = separate(list, left, right);
-            quickSort(list, left, pivotIndex - 1);
-            quickSort(list, pivotIndex + 1, right);
+    private static <E extends Comparable<E>> void quickSort(CustomList<E> list, int left, int right) {
+        if (right - left <= 0) {
+            return;
         }
-    }
 
-    private static <E extends Comparable<E>> int separate(CustomArrayList<E> list, int left, int right) {
-        E pivot = list.get(right);
-        int i = left - 1;
-        for (int j = left; j < right; j++) {
-            if (list.get(j).compareTo(pivot) <= 0) {
-                i++;
-                swap(list, i, j);
+        E pivot = list.get((left + right) / 2);
+        int l = left;
+        int r = right;
+        while (l <= r) {
+            while (list.get(l).compareTo(pivot) < 0) {
+                l++;
+            }
+            while (list.get(r).compareTo(pivot) > 0) {
+                r--;
+            }
+            if (l <= r) {
+                swap(list, l, r);
+                l++;
+                r--;
             }
         }
-        swap(list, i + 1, right);
-        return i + 1;
+        quickSort(list, left, l-1);
+        quickSort(list, l, right);
     }
 
-    private static <E> void swap(CustomArrayList<E> list, int i, int j) {
+    private static <E> void swap(CustomList<E> list, int i, int j) {
         E temp = list.get(i);
         list.set(i, list.get(j));
         list.set(j, temp);
@@ -166,28 +176,33 @@ public class CustomArrayList<E> {
      *
      * @param comparator - компаратор для определения порядка объектов.
      */
-    public static <T> void sort(CustomArrayList<T> list, Comparator<T> comparator) {
+    public static <E> void sort(CustomList<E> list, Comparator<E> comparator) {
         quickSort(list, comparator, 0, list.size() - 1);
     }
 
-    public static <T> void quickSort(CustomArrayList<T> list, Comparator<T> comparator, int left, int right) {
-        if (left < right) {
-            int pivotIndex = separate(list, comparator, left, right);
-            quickSort(list, comparator, left, pivotIndex - 1);
-            quickSort(list, comparator, pivotIndex + 1, right);
+    private static <E> void quickSort(CustomList<E> list, Comparator<E> comparator, int left, int right) {
+        if (right - left <= 0) {
+            return;
         }
-    }
 
-    private static <T> int separate(CustomArrayList<T> list, Comparator<T> comparator, int left, int right) {
-        T pivot = list.get(right);
-        int i = left - 1;
-        for (int j = left; j < right; j++) {
-            if (comparator.compare(list.get(j), pivot) <= 0) {
-                i++;
-                swap(list, i, j);
+        E pivot = list.get((left + right) / 2);
+        int l = left;
+        int r = right;
+        while (l <= r) {
+            while (comparator.compare(list.get(l), pivot) < 0) {
+                l++;
+            }
+            while (comparator.compare(list.get(r), pivot) > 0) {
+                r--;
+            }
+            if (l <= r) {
+                swap(list, l, r);
+                l++;
+                r--;
             }
         }
-        swap(list, i + 1, right);
-        return i + 1;
+        quickSort(list, comparator, left, l-1);
+        quickSort(list, comparator, l, right);
     }
+
 }
