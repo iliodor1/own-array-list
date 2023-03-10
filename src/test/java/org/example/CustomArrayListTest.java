@@ -11,7 +11,7 @@ class CustomArrayListTest {
 
     @BeforeEach
     public void setUp() {
-        list = new CustomArrayList<>();
+        list = new CustomArrayList<>(0);
     }
 
     @Test

@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
 
 /**
  * Это реализация динамического массива, которая использует массив для хранения элементов.
@@ -26,17 +25,28 @@ public class CustomArrayList<E> implements CustomList<E> {
     }
 
     /**
+     * Конструктор создает пустой список с заданной пользователем емкостью массива.
+     *
+     * @param capacity - емкость массива указанная пользователем.
+     */
+    public CustomArrayList(int capacity) {
+        if (capacity < 0) {
+            throw new IllegalArgumentException("Illegal capacity: " + capacity);
+        }
+        this.array = new Object[capacity];
+    }
+
+    /**
      * Добавляет элемент в конец списка.
      *
      * @param element элемент, который нужно добавить в список.
      */
     @Override
     public void add(E element) {
-        if (array.length == size) {
+        if (array.length == size || array.length < 1) {
             increaseArray();
-        } else {
-            array[size++] = element;
         }
+        array[size++] = element;
     }
 
     /**
@@ -63,8 +73,14 @@ public class CustomArrayList<E> implements CustomList<E> {
      */
     private void increaseArray() {
         Object[] tempArray = array;
-        var newLength = tempArray.length * 2;
-        array = Arrays.copyOf(tempArray, newLength);
+        int newLength = 0;
+
+        if (array.length > 0) {
+            newLength = tempArray.length * 2;
+            array = Arrays.copyOf(tempArray, newLength);
+        } else {
+            array = new Object[newLength + 1];
+        }
     }
 
     /**
@@ -91,7 +107,7 @@ public class CustomArrayList<E> implements CustomList<E> {
         if (index < 0 || size <= index) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
         }
-        for (int i = index; i < size; i++) {
+        for (int i = index; i < size - 1; i++) {
             array[i] = array[i + 1];
         }
         array[size - 1] = null;
@@ -136,8 +152,9 @@ public class CustomArrayList<E> implements CustomList<E> {
 
     /**
      * Метод сортирует объекты в натуральном порядке. Список должен содержать объекты реализующие интерфейс Comparable.
+     *
      * @param list список элементов, который нужно отсортировать
-     * @param <E> тип элемента в списке.
+     * @param <E>  тип элемента в списке.
      */
     public static <E extends Comparable<E>> void sort(CustomList<E> list) {
         quickSort(list, 0, list.size() - 1);
@@ -164,7 +181,7 @@ public class CustomArrayList<E> implements CustomList<E> {
                 r--;
             }
         }
-        quickSort(list, left, l-1);
+        quickSort(list, left, l - 1);
         quickSort(list, l, right);
     }
 
@@ -204,7 +221,7 @@ public class CustomArrayList<E> implements CustomList<E> {
                 r--;
             }
         }
-        quickSort(list, comparator, left, l-1);
+        quickSort(list, comparator, left, l - 1);
         quickSort(list, comparator, l, right);
     }
 
